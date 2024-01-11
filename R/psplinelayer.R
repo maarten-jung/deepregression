@@ -397,18 +397,22 @@ create_penalty <- function(evaluated_gam_term, df, controls, Z = NULL)
       stop("incorrect number of smoothing parameters supplied for smooth term ",
            evaluated_gam_term[[1]][["label"]])
     } else {
-      sp <- evaluated_gam_term[[1]][["sp"]]
+      sp_and_S <- list(
+        sp = evaluated_gam_term[[1]][["sp"]],
+        S = extract_S(evaluated_gam_term)
+      )
       message("using custom smoothing parameter(s) for smooth term ",
               evaluated_gam_term[[1]][["label"]])
     }
     
+  } else { # compute smoothing parameters from df
+  
+    sp_and_S <- list(      
+      sp = controls$defaultSmoothing(evaluated_gam_term, df),
+      S = extract_S(evaluated_gam_term)
+    ) 	
+	
   }
-
-  # get sp and S
-  sp_and_S <- list(
-    sp = if (exists("sp")) sp else controls$defaultSmoothing(evaluated_gam_term, df),
-    S = extract_S(evaluated_gam_term)
-  )
 
   if(controls$zero_constraint_for_smooths &
      length(evaluated_gam_term)==1 &
